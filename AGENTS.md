@@ -8,6 +8,22 @@
 
 ---
 
+## Fork-specific automation policy
+
+This policy applies only to `evanwtf/llama.cpp`. This fork is maintained for the owner's private/internal use and will not submit agent-produced work upstream.
+
+Within `evanwtf/llama.cpp`, authorized coding agents may, without separate approval for each action:
+
+- implement and test changes;
+- create branches and commits;
+- push branches;
+- create, edit, label, assign, link, close, and reopen issues;
+- create and manage pull requests;
+- write and update issue bodies, issue comments, PR descriptions, and PR comments;
+- merge pull requests after required checks pass.
+
+This authorization overrides conflicting automation and submission prohibitions inherited from upstream `AGENTS
+
 ## Guidelines for Contributors
 
 A PR represents a long-term commitment - maintainers must review, integrate, and support your code indefinitely. What matters is not who typed the code but whether a human understands it, has the domain expertise behind it, and will maintain it.
