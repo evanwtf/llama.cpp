@@ -78,6 +78,19 @@ def test_metrics_prometheus_format():
     for name in expected_gauges:
         assert metrics[name][0] == "gauge"
 
+    assert metrics["llamacpp:build_info"] == ("gauge", 1.0)
+    samples = [
+        sample
+        for family in text_string_to_metric_families(text)
+        for sample in family.samples
+        if sample.name == "llamacpp:build_info"
+    ]
+    assert len(samples) == 1
+    assert samples[0].labels["model"] == server.model_alias
+    assert samples[0].labels["build_number"].isdigit()
+    assert samples[0].labels["commit"]
+    assert samples[0].labels["build_target"]
+
     # every metric must carry a help line
     for name in expected_counters + expected_gauges:
         assert f"# HELP {name} " in text
