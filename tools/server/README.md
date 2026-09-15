@@ -1131,6 +1131,7 @@ Every sample has a `model` label containing the API-visible model name.
 
 | Metric | Type | Description |
 | ------ | ---------------------- | ----------- |
+| `llamacpp:build_info` | Gauge | Build provenance. The value is always 1; labels identify the model, build number, commit, and build target. |
 | `llamacpp:prompt_tokens_total` | Counter | Number of prompt tokens processed. |
 | `llamacpp:prompt_seconds_total` | Counter | Prompt process time in seconds. |
 | `llamacpp:prompt_tokens_seconds` | Gauge | Average prompt throughput in tokens/s. |

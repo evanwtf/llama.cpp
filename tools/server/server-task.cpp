@@ -1590,10 +1590,13 @@ std::string server_task_result_metrics::to_metrics() {
     };
 
     std::stringstream prometheus;
-    std::string model_label = model_name;
-    string_replace_all(model_label, "\\", "\\\\");
-    string_replace_all(model_label, "\n", "\\n");
-    string_replace_all(model_label, "\"", "\\\"");
+    auto escape_label = [](std::string value) {
+        string_replace_all(value, "\\", "\\\\");
+        string_replace_all(value, "\n", "\\n");
+        string_replace_all(value, "\"", "\\\"");
+        return value;
+    };
+    const std::string model_label = escape_label(model_name);
 
     auto add_items = [&prometheus, &model_label](const char * type, const std::vector<metric_item> & items) {
         for (const auto & item : items) {
@@ -1605,6 +1608,15 @@ std::string server_task_result_metrics::to_metrics() {
 
     add_items("counter", counters);
     add_items("gauge",   gauges);
+
+    const std::string commit_label       = escape_label(llama_commit());
+    const std::string build_target_label = escape_label(llama_build_target());
+    prometheus << "# HELP llamacpp:build_info Build information for the llama.cpp server\n"
+               << "# TYPE llamacpp:build_info gauge\n"
+               << "llamacpp:build_info{model=\"" << model_label
+               << "\",build_number=\"" << llama_build_number()
+               << "\",commit=\"" << commit_label
+               << "\",build_target=\"" << build_target_label << "\"} 1\n";
 
     // labeled counter: one time series per draft position
     if (!metrics.n_accepted_per_pos.empty()) {
