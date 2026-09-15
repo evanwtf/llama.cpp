@@ -1,4 +1,5 @@
 import pytest
+from prometheus_client.parser import text_string_to_metric_families
 from utils import *
 
 server = ServerPreset.tinyllama2()
@@ -28,8 +29,9 @@ def parse_metrics(text: str) -> dict:
         if line.startswith("# TYPE "):
             _, _, name, kind = line.split(" ", 3)
             types[name] = kind
-        elif line.startswith("llamacpp:") and "{" not in line:
-            name, value = line.split(" ", 1)
+        elif line.startswith("llamacpp:"):
+            sample, value = line.rsplit(" ", 1)
+            name = sample.split("{", 1)[0]
             assert name in types, f"{name} has no # TYPE line"
             out[name] = (types[name], float(value))
     return out
@@ -79,9 +81,22 @@ def test_metrics_prometheus_format():
     # every metric must carry a help line
     for name in expected_counters + expected_gauges:
         assert f"# HELP {name} " in text
+        assert f'{name}{{model="{server.model_alias}"}} ' in text
 
     assert metrics["llamacpp:n_decode_total"][1] > 0
     assert metrics["llamacpp:requests_processing"][1] == 0
+
+
+def test_metrics_model_label_escaping():
+    global server
+    server.model_alias = 'tiny"llama\\2\nmodel'
+    server.start()
+
+    text = fetch_metrics(server)
+    families = text_string_to_metric_families(text)
+    samples = [sample for family in families for sample in family.samples]
+    assert samples
+    assert all(sample.labels["model"] == server.model_alias for sample in samples)
 
 
 def test_metrics_prompt_processed_and_cached():

@@ -1125,6 +1125,8 @@ This endpoint is only accessible if `--metrics` is set.
 
 In *router mode* the query param `?model={model_id}` has to be set. This endpoint will respond with status code 400 `model name is missing from the request` if not set.
 
+Every sample has a `model` label containing the API-visible model name.
+
 #### Available metrics
 
 | Metric | Type | Description |
