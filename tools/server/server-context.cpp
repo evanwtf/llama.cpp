@@ -2513,6 +2513,7 @@ private:
                     res->id                  = task.id;
                     res->n_processing_slots  = n_processing_slots;
                     res->n_tasks_deferred    = queue_tasks.queue_tasks_deferred_size();
+                    res->model_name          = model_name;
                     res->metrics             = metrics;
 
                     if (task.metrics_reset_bucket) {

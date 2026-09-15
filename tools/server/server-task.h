@@ -495,6 +495,7 @@ struct server_task_result_metrics : server_task_result {
     int n_processing_slots = 0;
     int n_tasks_deferred = 0;
 
+    std::string model_name;
     server_metrics metrics;
 
     virtual json to_json() override;

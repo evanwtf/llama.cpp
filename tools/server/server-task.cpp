@@ -1590,12 +1590,16 @@ std::string server_task_result_metrics::to_metrics() {
     };
 
     std::stringstream prometheus;
+    std::string model_label = model_name;
+    string_replace_all(model_label, "\\", "\\\\");
+    string_replace_all(model_label, "\n", "\\n");
+    string_replace_all(model_label, "\"", "\\\"");
 
-    auto add_items = [&prometheus](const char * type, const std::vector<metric_item> & items) {
+    auto add_items = [&prometheus, &model_label](const char * type, const std::vector<metric_item> & items) {
         for (const auto & item : items) {
             prometheus << "# HELP llamacpp:" << item.name << " " << item.description << "\n"
                        << "# TYPE llamacpp:" << item.name << " " << type             << "\n"
-                       << "llamacpp:"        << item.name << " " << item.value       << "\n";
+                       << "llamacpp:"        << item.name << "{model=\"" << model_label << "\"} " << item.value << "\n";
         }
     };
 
@@ -1608,8 +1612,8 @@ std::string server_task_result_metrics::to_metrics() {
                       " Accepted tokens per draft position\n"
                    << "# TYPE llamacpp:spec_decode_num_accepted_tokens_per_pos_total counter\n";
         for (size_t i = 0; i < metrics.n_accepted_per_pos.size(); i++) {
-            prometheus << "llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position=\""
-                       << i << "\"} " << metrics.n_accepted_per_pos[i] << "\n";
+            prometheus << "llamacpp:spec_decode_num_accepted_tokens_per_pos_total{model=\""
+                       << model_label << "\",position=\"" << i << "\"} " << metrics.n_accepted_per_pos[i] << "\n";
         }
     }
 
